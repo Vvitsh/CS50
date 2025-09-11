@@ -63,21 +63,21 @@ int main() {
     if (cc_str != NULL) {
       unsigned int len = strlen(cc_str);
       if (checkSpecialChars(cc_str)) {
-        printf("Error: Contains special characters - ");
+        printf("Error: Contains special characters\n");
       } else {
         if (len >= min && len <= max) {
           break;
         } else {
-          printf("Error: Invalid character length - ");
+          printf("Error: Invalid character length\n");
         }
       }
     } else {
-      printf("Error: Please try again - ");
+      printf("Error: Please try again\n");
     }
   }
 
-  // NOTE: Part 1 - Extact, multiply, & sum the reverse of the first half of the
-  // array
+  // NOTE: Part 1 - Extact, multiply, & sum the reverse of every second element
+  // of the original array
   int len = strlen(cc_str);
   int cc[len];
   int i;
@@ -98,8 +98,10 @@ int main() {
   }
 
   // Malloc is needed because we dont know the new size till compile time
-  int *first_half_cc = (int *)malloc(new_len + sizeof(int));
-  int *second_half_cc = (int *)malloc(new_len + sizeof(int));
+  // TODO: Remember to free up the heap space from these malloc's
+  int *first_half_cc = (int *)malloc(new_len * sizeof(int));
+  int *second_half_cc = (int *)malloc(new_len * sizeof(int));
+
   for (int i = 0, j = 0; i < len; i += 2, j++) {
     first_half_cc[j] = cc[i];
   }
@@ -114,16 +116,14 @@ int main() {
   reverseArray(second_half_cc, new_len);
 
   // multiply fist half
-  int digit_arr[new_len];
+  int multiplied_digit_arr[new_len];
   for (int i = 0; i < new_len; i++) {
-    digit_arr[i] = (first_half_cc[i] * 2);
+    multiplied_digit_arr[i] = (first_half_cc[i] * 2);
   }
   // printArrayDebug(digit_arr, new_len, "digit arr");
 
   // Sum the digits not the values (Expected sum of 13 with test number)
-  // NOTE: We should extract this logic into it's own function DO THIS TO CLEAN
-  // UP THIS AND THE FOLLOWING!!!!
-  int first_sum = sumDigits(digit_arr, new_len);
+  int first_sum = sumDigits(multiplied_digit_arr, new_len);
   // printf("fist sum = %d\n", first_sum);
 
   // NOTE: Part 2 - Add the sum of the first half to the sum of the second half
@@ -138,13 +138,28 @@ int main() {
   // valid
   // TODO: Final - Add logic to print the card type instead of VALID
   if (total_sum % 10 == 0) {
-    printf("VALID");
+    // printf("VALID\n");
+    int first_ele = cc[0];
+    int second_ele = cc[1];
+    int starting_digits = (first_ele * 10) + second_ele;
+
+    if ((starting_digits == 34) | (starting_digits == 37)) {
+      printf("AMEX\n");
+    } else if ((starting_digits >= 51) & (starting_digits <= 55)) {
+      printf("MASTERCARD\n");
+    } else if (first_ele == 4) {
+      printf("VISA\n");
+    } else {
+      printf("VALID\n");
+    }
   } else {
-    printf("INVALID");
+    printf("INVALID\n");
   }
 
-  // NOTE: Remember to free up the heap space used by malloc
+  // NOTE: free up the heap space used by the malloc's
   free(first_half_cc);
+  free(second_half_cc);
+
   return 0;
 }
 
