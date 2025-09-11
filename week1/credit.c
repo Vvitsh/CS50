@@ -37,9 +37,23 @@ void reverseArray(int arr[], int len) {
   }
 }
 
+int sumDigits(int arr[], int len) {
+  int sum = 0;
+  int tmp, digit;
+  for (int i = 0; i < len; i++) {
+    tmp = arr[i];
+    while (tmp != 0) {
+      digit = tmp % 10;
+      sum += digit;
+      tmp /= 10;
+    }
+  }
+  return sum;
+}
+
 int main() {
   string cc_str;
-  // BUG: was getting warnings about the min/max length comparison, added
+  // Was getting warnings about the min/max length comparison, added
   // unsigned to shut the compiler up
   unsigned int min = 13;
   unsigned int max = 16;
@@ -109,30 +123,12 @@ int main() {
   // Sum the digits not the values (Expected sum of 13 with test number)
   // NOTE: We should extract this logic into it's own function DO THIS TO CLEAN
   // UP THIS AND THE FOLLOWING!!!!
-  int first_sum = 0;
-  int tmp, digit;
-  for (int i = 0; i < new_len; i++) {
-    tmp = digit_arr[i];
-    while (tmp != 0) {
-      digit = tmp % 10;
-      first_sum += digit;
-      tmp /= 10;
-    }
-  }
+  int first_sum = sumDigits(digit_arr, new_len);
   // printf("fist sum = %d\n", first_sum);
 
   // NOTE: Part 2 - Add the sum of the first half to the sum of the second half
   // of the digits not multiplied by 2
-  int second_sum = 0;
-  int nu_tmp, nu_digit;
-  for (int i = 0; i < new_len; i++) {
-    nu_tmp = second_half_cc[i];
-    while (nu_tmp != 0) {
-      nu_digit = nu_tmp % 10;
-      second_sum += nu_digit;
-      nu_tmp /= 10;
-    }
-  }
+  int second_sum = sumDigits(second_half_cc, new_len);
   // printf("second sum = %d\n", second_sum);
 
   int total_sum = first_sum + second_sum;
