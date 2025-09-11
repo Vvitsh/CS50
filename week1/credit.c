@@ -80,8 +80,7 @@ int main() {
   // of the original array
   int len = strlen(cc_str);
   int cc[len];
-  int i;
-  for (i = 0; i < len; i++) {
+  for (int i = 0; i < len; i++) {
     cc[i] = cc_str[i] - '0';
   }
 
@@ -89,29 +88,43 @@ int main() {
 
   // Size the length of the array and then determine if odd or even to find
   // accurate halfway point
-  int cc_len = sizeof(cc) / sizeof(cc[i]);
-  int new_len;
+  // BUG: Odd length arrays keep adding a zero to the end of second array NEEDS
+  // FIX
+  bool is_even_length;
+  int cc_len = sizeof(cc) / sizeof(cc[0]);
+  int new_len, odd_len;
   if (cc_len % 2 == 0) {
     new_len = cc_len / 2;
+    is_even_length = true;
   } else {
     new_len = (cc_len + 1) / 2;
+    is_even_length = false;
   }
+
+  odd_len = new_len;
+
+  if (is_even_length == false) {
+    odd_len--;
+  }
+  printf("%d\n", new_len);
+  printf("%d\n", odd_len);
 
   // Malloc is needed because we dont know the new size till compile time
   // TODO: Remember to free up the heap space from these malloc's
   int *first_half_cc = (int *)malloc(new_len * sizeof(int));
-  int *second_half_cc = (int *)malloc(new_len * sizeof(int));
+  int *second_half_cc = (int *)malloc(odd_len * sizeof(int));
 
   for (int i = 0, j = 0; i < len; i += 2, j++) {
     first_half_cc[j] = cc[i];
   }
   for (int i = 1, j = 0; i < len; i += 2, j++) {
-    second_half_cc[j] = cc[i];
+    second_half_cc[j] = cc[i] - '\0';
   }
-  // printArrayDebug(first_half_cc, new_len, "first half cc");
-  // printArrayDebug(second_half_cc, new_len, "second half cc");
 
-  // Reverse both halfs
+  printArrayDebug(first_half_cc, new_len, "first half cc");
+  printArrayDebug(second_half_cc, new_len, "second half cc");
+
+  // Reverse both array halfs
   reverseArray(first_half_cc, new_len);
   reverseArray(second_half_cc, new_len);
 
@@ -143,9 +156,9 @@ int main() {
     int second_ele = cc[1];
     int starting_digits = (first_ele * 10) + second_ele;
 
-    if ((starting_digits == 34) | (starting_digits == 37)) {
+    if ((starting_digits == 34) || (starting_digits == 37)) {
       printf("AMEX\n");
-    } else if ((starting_digits >= 51) & (starting_digits <= 55)) {
+    } else if ((starting_digits >= 51) && (starting_digits <= 55)) {
       printf("MASTERCARD\n");
     } else if (first_ele == 4) {
       printf("VISA\n");
