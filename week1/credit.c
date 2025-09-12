@@ -88,8 +88,6 @@ int main() {
 
   // Size the length of the array and then determine if odd or even to find
   // accurate halfway point
-  // BUG: Odd length arrays keep adding a zero to the end of second array NEEDS
-  // FIX
   bool is_even_length;
   int cc_len = sizeof(cc) / sizeof(cc[0]);
   int new_len, odd_len;
@@ -106,8 +104,8 @@ int main() {
   if (is_even_length == false) {
     odd_len--;
   }
-  printf("%d\n", new_len);
-  printf("%d\n", odd_len);
+  // printf("%d\n", new_len);
+  // printf("%d\n", odd_len);
 
   // Malloc is needed because we dont know the new size till compile time
   // TODO: Remember to free up the heap space from these malloc's
@@ -117,16 +115,22 @@ int main() {
   for (int i = 0, j = 0; i < len; i += 2, j++) {
     first_half_cc[j] = cc[i];
   }
-  for (int i = 1, j = 0; i < len; i += 2, j++) {
-    second_half_cc[j] = cc[i] - '\0';
+  if (is_even_length == false) {
+    for (int i = 1, j = 0; i < len - 1; i += 2, j++) {
+      second_half_cc[j] = cc[i];
+    }
+  } else {
+    for (int i = 1, j = 0; i < len; i += 2, j++) {
+      second_half_cc[j] = cc[i];
+    }
   }
 
-  printArrayDebug(first_half_cc, new_len, "first half cc");
-  printArrayDebug(second_half_cc, new_len, "second half cc");
+  // printArrayDebug(first_half_cc, new_len, "first half cc");
+  // printArrayDebug(second_half_cc, odd_len, "second half cc");
 
   // Reverse both array halfs
   reverseArray(first_half_cc, new_len);
-  reverseArray(second_half_cc, new_len);
+  reverseArray(second_half_cc, odd_len);
 
   // multiply fist half
   int multiplied_digit_arr[new_len];
@@ -141,7 +145,7 @@ int main() {
 
   // NOTE: Part 2 - Add the sum of the first half to the sum of the second half
   // of the digits not multiplied by 2
-  int second_sum = sumDigits(second_half_cc, new_len);
+  int second_sum = sumDigits(second_half_cc, odd_len);
   // printf("second sum = %d\n", second_sum);
 
   int total_sum = first_sum + second_sum;
