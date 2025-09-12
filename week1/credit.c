@@ -78,6 +78,7 @@ int main() {
 
   // NOTE: Part 1 - Extact, multiply, & sum the reverse of every second element
   // of the original array
+  // BUG: Possible failure of AMEX cards, needs further testing
   int len = strlen(cc_str);
   int cc[len];
   for (int i = 0; i < len; i++) {
