@@ -44,6 +44,7 @@ int sumDigits(int arr[], int len) {
     tmp = arr[i];
     while (tmp != 0) {
       digit = tmp % 10;
+      // printf("%d\n", digit);
       sum += digit;
       tmp /= 10;
     }
@@ -59,7 +60,7 @@ int main() {
   unsigned int max = 16;
 
   while (1) {
-    cc_str = get_string("Please enter a card number: ");
+    cc_str = get_string("Number: ");
     if (cc_str != NULL) {
       unsigned int len = strlen(cc_str);
       if (checkSpecialChars(cc_str)) {
@@ -78,7 +79,8 @@ int main() {
 
   // NOTE: Part 1 - Extact, multiply, & sum the reverse of every second element
   // of the original array
-  // BUG: Possible failure of AMEX cards, needs further testing
+  // BUG: Possible failure of AMEX cards & maybe shorter VISA cards, needs
+  // further testing
   int len = strlen(cc_str);
   int cc[len];
   for (int i = 0; i < len; i++) {
@@ -91,10 +93,11 @@ int main() {
   // accurate halfway point
   bool is_even_length;
   int cc_len = sizeof(cc) / sizeof(cc[0]);
-  int new_len, odd_len;
+  int new_len, odd_len, multi_len;
   if (cc_len % 2 == 0) {
     new_len = cc_len / 2;
     is_even_length = true;
+    multi_len = new_len;
   } else {
     new_len = (cc_len + 1) / 2;
     is_even_length = false;
@@ -104,6 +107,7 @@ int main() {
 
   if (is_even_length == false) {
     odd_len--;
+    multi_len = odd_len;
   }
   // printf("%d\n", new_len);
   // printf("%d\n", odd_len);
@@ -132,25 +136,42 @@ int main() {
   // Reverse both array halfs
   reverseArray(first_half_cc, new_len);
   reverseArray(second_half_cc, odd_len);
+  printArrayDebug(first_half_cc, new_len, "first half");
+  printArrayDebug(second_half_cc, odd_len, "second half");
 
   // multiply fist half
-  int multiplied_digit_arr[new_len];
-  for (int i = 0; i < new_len; i++) {
-    multiplied_digit_arr[i] = (first_half_cc[i] * 2);
+  int multiplied_digit_arr[multi_len];
+  if (is_even_length == false) {
+    for (int i = 0; i < new_len; i++) {
+      multiplied_digit_arr[i] = (second_half_cc[i] * 2);
+    }
+  } else {
+    for (int i = 0; i < new_len; i++) {
+      multiplied_digit_arr[i] = (first_half_cc[i] * 2);
+    }
   }
-  // printArrayDebug(digit_arr, new_len, "digit arr");
+  printArrayDebug(multiplied_digit_arr, multi_len, "multiplied digit arr: ");
 
   // Sum the digits not the values (Expected sum of 13 with test number)
-  int first_sum = sumDigits(multiplied_digit_arr, new_len);
+  int first_sum = sumDigits(multiplied_digit_arr, multi_len);
+  printf("First sum: %d\n", first_sum);
   // printf("fist sum = %d\n", first_sum);
 
   // NOTE: Part 2 - Add the sum of the first half to the sum of the second half
   // of the digits not multiplied by 2
-  int second_sum = sumDigits(second_half_cc, odd_len);
+  int second_sum;
+  if (is_even_length == false) {
+    second_sum = sumDigits(first_half_cc, new_len);
+  } else {
+    second_sum = sumDigits(second_half_cc, odd_len);
+  }
+  printf("Second sum: %d\n", second_sum);
   // printf("second sum = %d\n", second_sum);
 
   int total_sum = first_sum + second_sum;
-  // printf("total sum = %d\n", total_sum);
+  printf("total sum = %d\n", total_sum);
+  int sum_mod_10 = total_sum % 10;
+  printf("sum mod 10 = %d\n", sum_mod_10);
 
   // NOTE: Part 3 - If the total's modulo 10 is congruent to 0 the number is
   // valid
@@ -160,8 +181,9 @@ int main() {
     int first_ele = cc[0];
     int second_ele = cc[1];
     int starting_digits = (first_ele * 10) + second_ele;
+    printf("Starting digits: %d\n", starting_digits);
 
-    if ((starting_digits == 34) || (starting_digits == 37)) {
+    if (starting_digits == 34 || starting_digits == 37) {
       printf("AMEX\n");
     } else if ((starting_digits >= 51) && (starting_digits <= 55)) {
       printf("MASTERCARD\n");
