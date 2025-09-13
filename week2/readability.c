@@ -58,6 +58,8 @@ int main(void) {
 
   double index = 0.0588 * avg_letters - 0.296 * avg_sentences - 15.8;
   printf("Index: %f\n", index);
+  // TODO: TASK NEED PRINT EVAL TO FINISH LOOK AT REQ's
+  // BUG: NOT FINISHED
 
   return 0;
 }
