@@ -26,9 +26,15 @@ int main(int argc, char *argv[]) {
   for (int i = 0; i < key_len; i++) {
     char table_letter = tolower(table[i]);
     for (int j = 0; j < str_len; j++) {
-      char str_letter = tolower(plaintext[j]);
-      if (table_letter == str_letter) {
-        ciphertext[j] = key[i];
+      char str_letter = plaintext[j];
+      if (tolower(str_letter) == table_letter) {
+        if (!islower(str_letter)) {
+          ciphertext[j] = key[i];
+        } else {
+          ciphertext[j] = tolower(key[i]);
+        }
+      } else if (!isalnum(str_letter)) {
+        ciphertext[j] = str_letter;
       }
     }
   }
