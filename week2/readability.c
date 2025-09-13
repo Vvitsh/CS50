@@ -19,17 +19,23 @@ int main(void) {
   int sentences = 0;
 
   int i = 0;
+  // Tokenize the first word with strtok
   char *word = strtok(paragraph, " ");
-  while (word != NULL && i < len / 2) {
+  // We need an actual number lower number to rely on or too many
+  // iterations shit the bed
+  while (word != NULL && i < len / 4) {
     if (strchr(word, '.') != NULL || strchr(word, '!') != NULL ||
         strchr(word, '?') != NULL) {
       sentences++;
     }
     words[i] = word;
     i++;
+    // The following call to strtok starts with null and picks up where the last
+    // call left off
     word = strtok(NULL, " ");
   }
 
+  // The number of iterations is the number of words
   int total_words = i;
   printf("Total words: %d\n", total_words);
   printf("Total sentences: %d\n", sentences);
