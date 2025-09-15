@@ -158,14 +158,50 @@ void sort_pairs(void) {
   return;
 }
 
+bool check_cycle(int start, int current) {
+  if (current == start) {
+    return true; // we found a cycle
+  }
+  for (int i = 0; i < candidate_count; i++) {
+    if (locked[current][i]) {
+      if (check_cycle(start, i)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 // Lock pairs into the candidate graph in order, without creating cycles
 void lock_pairs(void) {
-  // TODO
-  return;
+  for (int i = 0; i < pair_count; i++) {
+    int winner = pairs[i].winner;
+    int loser = pairs[i].loser;
+
+    locked[winner][loser] = true;     // tentatively lock it
+    if (check_cycle(winner, loser)) { // check for cycle
+      locked[winner][loser] = false;  // undo if cycle
+    }
+  }
 }
 
 // Print the winner of the election
 void print_winner(void) {
-  // TODO
-  return;
+  for (int i = 0; i < candidate_count; i++) {
+    bool has_arrow_in = false;
+
+    // Check if anyone points to candidate i
+    for (int j = 0; j < candidate_count; j++) {
+      if (locked[j][i]) {
+        has_arrow_in = true;
+        break;
+      }
+    }
+
+    // If no one points to i, i is the winner
+    if (!has_arrow_in) {
+      printf("%s\n", candidates[i]);
+      return;
+    }
+  }
 }
