@@ -111,10 +111,11 @@ void edges(int height, int width, RGBTRIPLE image[height][width]) {
       int gxRed = 0, gxGreen = 0, gxBlue = 0;
       int gyRed = 0, gyGreen = 0, gyBlue = 0;
 
+      // Calculate the kernel offsets
       for (int dx = -1; dx <= 1; dx++) {
         for (int dy = -1; dy <= 1; dy++) {
 
-          // Calculate the kernel offsets for all neighbouring cells
+          // Calculate the neighbours coordinates
           int x = i + dx;
           int y = j + dy;
 
