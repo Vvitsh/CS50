@@ -122,6 +122,9 @@ void edges(int height, int width, RGBTRIPLE image[height][width]) {
 
             // Calculate the color channel sums by multipling current color
             // channel by the gx/gy kernel value
+            //
+            // The kernels are 3x3 indexed from 0 - 2 but dx/dy iterate from -1
+            // - +1 so we add +1 to the index
             gxBlue += image[x][y].rgbtBlue * gx[dx + 1][dy + 1];
             gxGreen += image[x][y].rgbtGreen * gx[dx + 1][dy + 1];
             gxRed += image[x][y].rgbtRed * gx[dx + 1][dy + 1];
