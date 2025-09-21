@@ -48,6 +48,9 @@ void reflect(int height, int width, RGBTRIPLE image[height][width]) {
 // Blur image
 void blur(int height, int width, RGBTRIPLE image[height][width]) {
 
+  RGBTRIPLE copy[height][width];
+
+  // Offset values compute the neighbours of each cell
   int offsets[8][2] = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1},
                        {0, 1},   {1, -1}, {1, 0},  {1, 1}};
   int set_len = sizeof(offsets) / sizeof(offsets[0]);
@@ -55,29 +58,37 @@ void blur(int height, int width, RGBTRIPLE image[height][width]) {
   for (int i = 0; i < height; i++) {
     for (int j = 0; j < width; j++) {
 
-      int blue_channel = 0;
-      int green_channel = 0;
-      int red_channel = 0;
+      RGBTRIPLE blur_map;
+
       int count = 0;
 
       for (int k = 0; k < set_len; k++) {
 
+        // Compute the neighbours relative to image[i][j]
         int x = i + offsets[k][0];
         int y = j + offsets[k][1];
 
+        // Check the boundary of the cell for edges and corners
         if (x >= 0 && x < height && y >= 0 && y < width) {
 
-          blue_channel += image[x][y].rgbtBlue;
-          green_channel += image[x][y].rgbtGreen;
-          red_channel += image[x][y].rgbtRed;
+          blur_map.rgbtBlue += image[x][y].rgbtBlue;
+          blur_map.rgbtGreen += image[x][y].rgbtGreen;
+          blur_map.rgbtRed += image[x][y].rgbtRed;
 
           count++;
         }
       }
 
-      image[i][j].rgbtBlue = roundf((float)blue_channel / count);
-      image[i][j].rgbtGreen = roundf((float)green_channel / count);
-      image[i][j].rgbtRed = roundf((float)red_channel / count);
+      copy[i][j].rgbtBlue = roundf((float)blur_map.rgbtBlue / count);
+      copy[i][j].rgbtGreen = roundf((float)blur_map.rgbtGreen / count);
+      copy[i][j].rgbtRed = roundf((float)blur_map.rgbtRed / count);
+    }
+  }
+
+  for (int i = 0; i < height; i++) {
+    for (int j = 0; j < width; j++) {
+
+      image[i][j] = copy[i][j];
     }
   }
 
@@ -85,4 +96,57 @@ void blur(int height, int width, RGBTRIPLE image[height][width]) {
 }
 
 // Detect edges
-void edges(int height, int width, RGBTRIPLE image[height][width]) { return; }
+void edges(int height, int width, RGBTRIPLE image[height][width]) {
+
+  RGBTRIPLE copy[height][width];
+
+  int gx[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+  int gy[3][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
+
+  for (int i = 0; i < height; i++) {
+    for (int j = 0; j < width; j++) {
+
+      int gxRed = 0, gxGreen = 0, gxBlue = 0;
+      int gyRed = 0, gyGreen = 0, gyBlue = 0;
+
+      for (int dx = -1; dx <= 1; dx++) {
+        for (int dy = -1; dy <= 1; dy++) {
+
+          int x = i + dx;
+          int y = j + dy;
+
+          if (x >= 0 && x < height && y >= 0 && y < width) {
+
+            gxBlue += image[x][y].rgbtBlue * gx[dx + 1][dy + 1];
+            gxGreen += image[x][y].rgbtGreen * gx[dx + 1][dy + 1];
+            gxRed += image[x][y].rgbtRed * gx[dx + 1][dy + 1];
+
+            gyBlue += image[x][y].rgbtBlue * gy[dx + 1][dy + 1];
+            gyGreen += image[x][y].rgbtGreen * gy[dx + 1][dy + 1];
+            gyRed += image[x][y].rgbtRed * gy[dx + 1][dy + 1];
+          }
+        }
+
+        // Calculate the sobel filter by squaring the root of gx^2 + gy^2 and
+        // clamp the value with fmin
+        copy[i][j].rgbtBlue =
+            fmin(255, round(sqrt(pow(gxBlue, 2) + pow(gyBlue, 2))));
+
+        copy[i][j].rgbtGreen =
+            fmin(255, round(sqrt(pow(gxGreen, 2) + pow(gyGreen, 2))));
+
+        copy[i][j].rgbtRed =
+            fmin(255, round(sqrt(pow(gxRed, 2) + pow(gyRed, 2))));
+      }
+    }
+  }
+
+  for (int i = 0; i < height; i++) {
+    for (int j = 0; j < width; j++) {
+
+      image[i][j] = copy[i][j];
+    }
+  }
+
+  return;
+}
