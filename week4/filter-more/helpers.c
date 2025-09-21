@@ -98,6 +98,7 @@ void blur(int height, int width, RGBTRIPLE image[height][width]) {
 // Detect edges
 void edges(int height, int width, RGBTRIPLE image[height][width]) {
 
+  // Need to create a copy to record the sobel values
   RGBTRIPLE copy[height][width];
 
   int gx[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
@@ -106,17 +107,21 @@ void edges(int height, int width, RGBTRIPLE image[height][width]) {
   for (int i = 0; i < height; i++) {
     for (int j = 0; j < width; j++) {
 
+      // Values to hold the gx/gy color channel sums
       int gxRed = 0, gxGreen = 0, gxBlue = 0;
       int gyRed = 0, gyGreen = 0, gyBlue = 0;
 
       for (int dx = -1; dx <= 1; dx++) {
         for (int dy = -1; dy <= 1; dy++) {
 
+          // Calculate the kernel offsets for all neighbouring cells
           int x = i + dx;
           int y = j + dy;
 
           if (x >= 0 && x < height && y >= 0 && y < width) {
 
+            // Calculate the color channel sums by multipling current color
+            // channel by the gx/gy kernel value
             gxBlue += image[x][y].rgbtBlue * gx[dx + 1][dy + 1];
             gxGreen += image[x][y].rgbtGreen * gx[dx + 1][dy + 1];
             gxRed += image[x][y].rgbtRed * gx[dx + 1][dy + 1];
