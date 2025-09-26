@@ -10,7 +10,7 @@ unsigned char *find_header(unsigned char *buffer, size_t buffer_len,
 
 int main(int argc, char *argv[]) {
 
-  if (argc < 2 || argc > 2) {
+  if (argc != 2) {
     printf("Usage: recover [image.jpg]\n");
     return 1;
   }
@@ -46,10 +46,11 @@ int main(int argc, char *argv[]) {
     size_t i = 0;
 
     while (i <= total - header_len) {
-      unsigned char *match = find_header(buffer, total, jpg_header, header_len);
+      unsigned char *match =
+          find_header(buffer + i, total - i, jpg_header, header_len);
 
       if (match) {
-        size_t match_offset = match - buffer;
+        size_t match_offset = (match - (buffer + i)) + i;
 
         if (out) {
           fclose(out);
@@ -57,8 +58,14 @@ int main(int argc, char *argv[]) {
         }
 
         char filename[64];
-        snprintf(filename, sizeof(filename), "%d.jpg", ++part);
+        snprintf(filename, sizeof(filename), "%03d.jpg", ++part);
         out = fopen(filename, "wb");
+        if (!out) {
+          perror("Error: Unable to create output file");
+          free(buffer);
+          fclose(file);
+          return 1;
+        }
 
         fwrite(match, 1, total - match_offset, out);
 
@@ -66,20 +73,14 @@ int main(int argc, char *argv[]) {
       } else {
         break;
       }
-
-      if (out) {
-        fwrite(buffer + i, 1, total - i, out);
-      }
-
-      overlap = header_len - 1;
-      if (total >= overlap) {
-        memmove(buffer, buffer + total - overlap, overlap);
-      } else {
-        overlap = total;
-      }
-
-      offset += bytes;
     }
+
+    if (out) {
+      fwrite(buffer + i, 1, total - i, out);
+    }
+
+    overlap = (total >= 3) ? 3 : total;
+    memmove(buffer, buffer + total - overlap, overlap);
   }
 
   if (out)
@@ -97,7 +98,11 @@ unsigned char *find_header(unsigned char *buffer, size_t buffer_len,
     return NULL;
 
   for (size_t i = 0; i <= buffer_len - header_len; i++) {
-    if (memcmp(buffer + i, header, header_len) == 0) {
+    // if (memcmp(buffer + i, header, header_len) == 0) {
+    //   return buffer + i;
+    // }
+    if (buffer[i] == 0xFF && buffer[i + 1] == 0xD8 && buffer[i + 2] == 0xFF &&
+        (buffer[i + 3] & 0xF0) == 0xE0) {
       return buffer + i;
     }
   }
